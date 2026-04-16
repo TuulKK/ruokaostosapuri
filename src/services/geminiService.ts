@@ -27,9 +27,16 @@ export async function categorizeItem(itemName: string): Promise<string> {
     const ai = getAI();
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Categorize this grocery item: "${itemName}". 
-      Available categories: ${CATEGORIES.map(c => `${c.id} (${c.name})`).join(', ')}.
-      Return only the category ID.`,
+      contents: `Olet ostoslista-apuri. Luokittele tämä tuote: "${itemName}".
+      Käytettävissä olevat kategoriat:
+      - produce: Hedelmät, vihannekset, juurekset, yrtit
+      - dairy: Maito, juusto, jogurtti, kananmunat, kauramaito, vegaaniset korvikkeet
+      - meat: Liha, kana, kala, leikkeleet
+      - bakery: Leipä, sämpylät, leivonnaiset
+      - pantry: Jauhot, pasta, riisi, säilykkeet, mausteet, öljyt, kahvi
+      - other: Kaikki muu (pesuaineet, wc-paperi jne.)
+
+      Palauta vain kategorian ID (produce, dairy, meat, bakery, pantry, other).`,
       config: {
         responseMimeType: "application/json",
         responseSchema: {

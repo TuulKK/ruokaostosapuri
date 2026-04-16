@@ -1,11 +1,33 @@
-<div align="center">
+# Viikon Ruokaostokset
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+Tämä on yksinkertainen ja tyylikäs selainsovellus viikon ruokaostosten hallintaan.
 
-  <h1>Built with AI Studio</h2>
+## Julkaisu GitHub Pagesiin
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+Tämä projekti on valmiiksi konfiguroitu toimimaan GitHub Pagesissa. Seuraa näitä ohjeita:
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+1.  **Luo uusi repositorio GitHubiin.**
+2.  **Puske koodi GitHubiin:**
+    *   Varmista, että kaikki tiedostot (mukaan lukien `package-lock.json`) ovat mukana.
+    ```bash
+    git init
+    git add .
+    git commit -m "Initial commit"
+    git branch -M main
+    git remote add origin https://github.com/KÄYTTÄJÄNIMI/REPOSIITORION-NIMI.git
+    git push -u origin main
+    ```
+3.  **Aktivoi GitHub Pages:**
+    *   Mene GitHubissa projektisi asetuksiin (**Settings**).
+    *   Valitse vasemmalta **Pages**.
+    *   Kohdassa **Build and deployment > Source**, valitse **GitHub Actions**.
+4.  **Valmis!**
+    *   Projektin mukana tuleva `.github/workflows/deploy.yml` hoitaa sovelluksen rakentamisen ja julkaisun automaattisesti aina, kun pusket koodia `main`-haaraan.
+    *   Muutaman minuutin kuluttua sovelluksesi on livenä osoitteessa `https://KÄYTTÄJÄNIMI.github.io/REPOSIITORION-NIMI/`.
 
-</div>
+## Ominaisuudet
+- Tuotteiden lisäys kategorioittain
+- Edistymisen seuranta
+- Automaattinen tallennus selaimen muistiin
+- Responsiivinen ulkoasu (toimii mobiilissa ja työpöydällä)
+- Animaatiot (motion/react)

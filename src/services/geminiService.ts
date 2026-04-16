@@ -24,13 +24,18 @@ export const CATEGORIES = [
 
 export async function categorizeItem(itemName: string): Promise<string> {
   try {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey || apiKey === 'undefined') {
+      console.warn("GEMINI_API_KEY puuttuu. Tekoäly-kategorisointi ei toimi ilman sitä.");
+      return 'other';
+    }
+
     const ai = getAI();
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Olet suomalainen ruokaostokset-apuri. Tehtäväsi on luokitella tuote oikeaan kategoriaan.
-      Tuote: "${itemName}"
+      contents: `Olet suomalainen ruokaostokset-apuri. Luokittele tuote: "${itemName}"
       
-      Kategoriat:
+      Kategoriat ja niiden ID:t:
       - produce: Hedelmät, vihannekset, marjat, yrtit, juurekset
       - dairy: Maito, juustot, munat, jogurtit, kauramaidot, vegaaniset tuotteet
       - meat: Liha, kala, kana, leikkeleet, makkarat
@@ -54,12 +59,16 @@ export async function categorizeItem(itemName: string): Promise<string> {
       },
     });
 
-    if (!response.text) return 'other';
+    if (!response.text) {
+      console.error("Gemini palautti tyhjän vastauksen");
+      return 'other';
+    }
     
     const result = JSON.parse(response.text.trim());
+    console.log(`Tekoäly tunnisti tuotteen "${itemName}" kategoriaan: ${result.categoryId}`);
     return result.categoryId || 'other';
   } catch (error) {
-    console.error("Gemini categorization failed:", error);
-    return 'other'; // Palautetaan 'other', jolloin App.tsx käyttää valittua kategoriaa
+    console.error("Gemini-virhe:", error);
+    return 'other';
   }
 }

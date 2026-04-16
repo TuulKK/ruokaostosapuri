@@ -65,11 +65,11 @@ export default function App() {
       // Yritetään tunnistaa kategoria tekoälyllä
       const aiCategory = await categorizeItem(name);
       
-      // Jos tekoäly ei tunnista (palauttaa 'other') ja käyttäjä on valinnut jonkin muun kategorian,
-      // käytetään käyttäjän valintaa. Muuten käytetään tekoälyn tunnistusta.
-      const finalCategory = (aiCategory === 'other' && selectedCategory !== 'other') 
-        ? selectedCategory 
-        : aiCategory;
+      // Jos tekoäly tunnisti jotain muuta kuin 'other', käytetään sitä.
+      // Jos tekoäly palautti 'other', käytetään käyttäjän valitsemaa kategoriaa.
+      const finalCategory = (aiCategory !== 'other') 
+        ? aiCategory 
+        : selectedCategory;
 
       const newItem: GroceryItem = {
         id: crypto.randomUUID(),
@@ -82,7 +82,6 @@ export default function App() {
       setItems(prev => [newItem, ...prev]);
       setNewItemName('');
     } catch (error) {
-      // Jos tekoäly epäonnistuu kokonaan, käytetään valittua kategoriaa
       const newItem: GroceryItem = {
         id: crypto.randomUUID(),
         name: name,

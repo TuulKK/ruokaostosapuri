@@ -18,9 +18,11 @@ import {
   Wheat,
   Package,
   Coffee,
-  RotateCcw
+  RotateCcw,
+  Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { categorizeItem } from './services/geminiService';
 
 interface GroceryItem {
   id: string;
@@ -46,25 +48,33 @@ export default function App() {
   });
   const [newItemName, setNewItemName] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('produce');
+  const [isCategorizing, setIsCategorizing] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('grocery-list-items', JSON.stringify(items));
   }, [items]);
 
-  const addItem = (e: React.FormEvent) => {
+  const addItem = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newItemName.trim()) return;
+    if (!newItemName.trim() || isCategorizing) return;
 
-    const newItem: GroceryItem = {
-      id: crypto.randomUUID(),
-      name: newItemName.trim(),
-      category: selectedCategory,
-      completed: false,
-      createdAt: Date.now(),
-    };
+    setIsCategorizing(true);
+    try {
+      const category = await categorizeItem(newItemName.trim());
+      
+      const newItem: GroceryItem = {
+        id: crypto.randomUUID(),
+        name: newItemName.trim(),
+        category: category,
+        completed: false,
+        createdAt: Date.now(),
+      };
 
-    setItems(prev => [newItem, ...prev]);
-    setNewItemName('');
+      setItems(prev => [newItem, ...prev]);
+      setNewItemName('');
+    } finally {
+      setIsCategorizing(false);
+    }
   };
 
   const toggleItem = (id: string) => {
@@ -161,10 +171,14 @@ export default function App() {
             />
             <button
               type="submit"
-              disabled={!newItemName.trim()}
+              disabled={!newItemName.trim() || isCategorizing}
               className="absolute right-2 top-2 bottom-2 px-4 bg-pink-600 text-white rounded-xl hover:bg-pink-700 disabled:opacity-50 disabled:hover:bg-pink-600 transition-all flex items-center justify-center"
             >
-              <Plus className="w-6 h-6" />
+              {isCategorizing ? (
+                <Loader2 className="w-6 h-6 animate-spin" />
+              ) : (
+                <Plus className="w-6 h-6" />
+              )}
             </button>
           </div>
 

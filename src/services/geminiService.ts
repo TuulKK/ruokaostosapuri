@@ -26,7 +26,7 @@ export async function categorizeItem(itemName: string): Promise<string> {
   try {
     const ai = getAI();
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-1.5-flash-latest",
       contents: `Olet ostoslista-apuri. Luokittele tämä tuote: "${itemName}".
       Käytettävissä olevat kategoriat:
       - produce: Hedelmät, vihannekset, juurekset, yrtit
@@ -36,24 +36,16 @@ export async function categorizeItem(itemName: string): Promise<string> {
       - pantry: Jauhot, pasta, riisi, säilykkeet, mausteet, öljyt, kahvi
       - other: Kaikki muu (pesuaineet, wc-paperi jne.)
 
-      Palauta vain kategorian ID (produce, dairy, meat, bakery, pantry, other).`,
+      Palauta JSON-muodossa: {"categoryId": "valittu_id"}`,
       config: {
         responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            categoryId: {
-              type: Type.STRING,
-              description: "The ID of the category that best fits the item.",
-              enum: CATEGORIES.map(c => c.id),
-            },
-          },
-          required: ["categoryId"],
-        },
       },
     });
 
-    const result = JSON.parse(response.text);
+    const text = response.text;
+    if (!text) return 'other';
+    
+    const result = JSON.parse(text);
     return result.categoryId || 'other';
   } catch (error) {
     console.error("Error categorizing item:", error);

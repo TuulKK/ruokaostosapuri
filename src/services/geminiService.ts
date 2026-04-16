@@ -26,29 +26,40 @@ export async function categorizeItem(itemName: string): Promise<string> {
   try {
     const ai = getAI();
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash-latest",
-      contents: `Olet ostoslista-apuri. Luokittele tämä tuote: "${itemName}".
-      Käytettävissä olevat kategoriat:
-      - produce: Hedelmät, vihannekset, juurekset, yrtit
-      - dairy: Maito, juusto, jogurtti, kananmunat, kauramaito, vegaaniset korvikkeet
-      - meat: Liha, kana, kala, leikkeleet
-      - bakery: Leipä, sämpylät, leivonnaiset
-      - pantry: Jauhot, pasta, riisi, säilykkeet, mausteet, öljyt, kahvi
-      - other: Kaikki muu (pesuaineet, wc-paperi jne.)
+      model: "gemini-3-flash-preview",
+      contents: `Olet suomalainen ruokaostokset-apuri. Tehtäväsi on luokitella tuote oikeaan kategoriaan.
+      Tuote: "${itemName}"
+      
+      Kategoriat:
+      - produce: Hedelmät, vihannekset, marjat, yrtit, juurekset
+      - dairy: Maito, juustot, munat, jogurtit, kauramaidot, vegaaniset tuotteet
+      - meat: Liha, kala, kana, leikkeleet, makkarat
+      - bakery: Leivät, pullat, kakut, keksit
+      - pantry: Kuivatuotteet, pasta, riisi, jauhot, mausteet, öljyt, säilykkeet, kahvi, tee
+      - other: Kaikki muu (siivous, hygienia, lemmikit jne.)
 
-      Palauta JSON-muodossa: {"categoryId": "valittu_id"}`,
+      VASTAA VAIN JSON-MUODOSSA: {"categoryId": "id_tähän"}`,
       config: {
         responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            categoryId: {
+              type: Type.STRING,
+              enum: ['produce', 'dairy', 'meat', 'bakery', 'pantry', 'other'],
+            },
+          },
+          required: ["categoryId"],
+        },
       },
     });
 
-    const text = response.text;
-    if (!text) return 'other';
+    if (!response.text) return 'other';
     
-    const result = JSON.parse(text);
+    const result = JSON.parse(response.text.trim());
     return result.categoryId || 'other';
   } catch (error) {
-    console.error("Error categorizing item:", error);
-    return 'other';
+    console.error("Gemini categorization failed:", error);
+    return 'other'; // Palautetaan 'other', jolloin App.tsx käyttää valittua kategoriaa
   }
 }

@@ -58,18 +58,38 @@ export default function App() {
     e.preventDefault();
     if (!newItemName.trim() || isCategorizing) return;
 
+    const name = newItemName.trim();
     setIsCategorizing(true);
+    
     try {
-      const category = await categorizeItem(newItemName.trim());
+      // Yritetään tunnistaa kategoria tekoälyllä
+      const aiCategory = await categorizeItem(name);
       
+      // Jos tekoäly ei tunnista (palauttaa 'other') ja käyttäjä on valinnut jonkin muun kategorian,
+      // käytetään käyttäjän valintaa. Muuten käytetään tekoälyn tunnistusta.
+      const finalCategory = (aiCategory === 'other' && selectedCategory !== 'other') 
+        ? selectedCategory 
+        : aiCategory;
+
       const newItem: GroceryItem = {
         id: crypto.randomUUID(),
-        name: newItemName.trim(),
-        category: category,
+        name: name,
+        category: finalCategory,
         completed: false,
         createdAt: Date.now(),
       };
 
+      setItems(prev => [newItem, ...prev]);
+      setNewItemName('');
+    } catch (error) {
+      // Jos tekoäly epäonnistuu kokonaan, käytetään valittua kategoriaa
+      const newItem: GroceryItem = {
+        id: crypto.randomUUID(),
+        name: name,
+        category: selectedCategory,
+        completed: false,
+        createdAt: Date.now(),
+      };
       setItems(prev => [newItem, ...prev]);
       setNewItemName('');
     } finally {
